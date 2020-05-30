@@ -3,6 +3,10 @@ import { Form, Icon, Input, Button, Row, Col } from "antd";
 import io from "socket.io-client";
 import { connect } from "react-redux";
 import moment from "moment";
+import { getChats } from "../../../_actions/chat_actions";
+import ChatCard from "./Sections/ChatCard";
+/*import Dropzone from "react-dropzone";
+import Axios from "axios";*/
 
 export class ChatPage extends Component {
   state = {
@@ -11,6 +15,8 @@ export class ChatPage extends Component {
 
   componentDidMount() {
     let server = "http://localhost:5000";
+
+    this.props.dispatch(getChats());
 
     this.socket = io(server);
 
@@ -24,6 +30,12 @@ export class ChatPage extends Component {
       chatMessage: e.target.value,
     });
   };
+
+  renderCards = () =>
+    this.props.chats.chats &&
+    this.props.chats.chats.map(chat => <ChatCard key={chat._id} {...chat} />);
+
+  /*<ChatCard key={chat._id} {...chat} />);*/
 
   submitChatMessage = e => {
     e.preventDefault();
@@ -57,10 +69,8 @@ export class ChatPage extends Component {
         </div>
 
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <div className="infinite-container">
-            {/* {this.props.chats && (
-                          <div>{this.renderCards()}</div>
-                      )} */}
+          <div className="infinite-container" style={{ height: "500px" }}>
+            {this.props.chats && this.renderCards()}
             <div
               ref={el => {
                 this.messagesEnd = el;
@@ -68,7 +78,6 @@ export class ChatPage extends Component {
               style={{ float: "left", clear: "both" }}
             />
           </div>
-
           <Row>
             <Form layout="inline" onSubmit={this.submitChatMessage}>
               <Col span={18}>
@@ -98,7 +107,7 @@ export class ChatPage extends Component {
             </Form>
           </Row>
         </div>
-      </React.Fragment>
+      </React.Fragment >
     );
   }
 }
@@ -106,6 +115,7 @@ export class ChatPage extends Component {
 const mapStateToProps = state => {
   return {
     user: state.user,
+    chats: state.chat,
   };
 };
 
