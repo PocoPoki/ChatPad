@@ -37,6 +37,7 @@ io.on("connection", socket => {
     connect.then(db => {
       try {
         let chat = new Chat({
+          time: msg.nowTime,
           message: msg.chatMessage,
           sender: msg.userId,
           type: msg.type,

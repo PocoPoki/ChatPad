@@ -44,7 +44,7 @@ export class ChatPage extends Component {
     let userId = this.props.user.userData._id;
     let userName = this.props.user.userData.name;
     let userImage = this.props.user.userData.image;
-    let nowTime = moment();
+    let nowTime = moment().format('YYYY-MM-DD HH:mm:ss');
     let type = "Text";
 
     this.socket.emit("Input Chat Message", {
