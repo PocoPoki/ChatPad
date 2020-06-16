@@ -5,8 +5,8 @@ import { connect } from "react-redux";
 import moment from "moment";
 import { getChats, afterPostMessage } from "../../../_actions/chat_actions";
 import ChatCard from "./Sections/ChatCard";
-/*import Dropzone from "react-dropzone";
-import Axios from "axios";*/
+import Dropzone from "react-dropzone";
+import Axios from "axios";
 
 export class ChatPage extends Component {
   state = {
@@ -27,7 +27,11 @@ export class ChatPage extends Component {
     });
   }
 
-  hanleSearchChange = e => {
+  componentDidUpdate() {
+    this.messagesEnd.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  hanleSearchChange = (e) => {
     this.setState({
       chatMessage: e.target.value,
     });
@@ -39,9 +43,45 @@ export class ChatPage extends Component {
 
   /*<ChatCard key={chat._id} {...chat} />);*/
 
+  onDrop = (files) => {
+    console.log(files)
+
+    if (this.props.user.userData && !this.props.user.userData.isAuth) {
+      return alert('Please Log in first');
+    }
+    let formData = new FormData();
+
+    const config = {
+      header: { 'content-type': 'multipart/form-data' }
+    }
+    formData.append("file", files[0])
+
+    Axios.post('api/chat/uploadfiles', formData, config).then(response => {
+      if (response.data.success) {
+        let chatMessage = response.data.url;
+        let userId = this.props.user.userData._id;
+        let userName = this.props.user.userData.name;
+        let userImage = this.props.user.userData.image;
+        let nowTime = moment().format('YYYY-MM-DD HH:mm:ss');
+        let type = "VideoOrImage";
+
+        this.socket.emit("Input Chat Message", {
+          chatMessage,
+          userId,
+          userName,
+          userImage,
+          nowTime,
+          type,
+        });
+      }
+    });
+  };
   submitChatMessage = e => {
     e.preventDefault();
 
+    if (this.props.user.userData && !this.props.user.userData.isAuth) {
+      return alert("Please Login first");
+    }
     let chatMessage = this.state.chatMessage;
     let userId = this.props.user.userData._id;
     let userName = this.props.user.userData.name;
@@ -65,13 +105,12 @@ export class ChatPage extends Component {
       <React.Fragment>
         <div>
           <p style={{ fontSize: "2rem", textAlign: "center" }}>
-            {" "}
             Real Time Chat
           </p>
         </div>
 
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <div className="infinite-container" style={{ height: "500px" }}>
+          <div className="infinite-container" style={{ height: "500px", overflowY: 'scroll' }}>
             {this.props.chats && this.renderCards()}
             <div
               ref={el => {
@@ -94,7 +133,20 @@ export class ChatPage extends Component {
                   onChange={this.hanleSearchChange}
                 />
               </Col>
-              <Col span={2}></Col>
+              <Col span={2}>
+                <Dropzone onDrop={this.onDrop}>
+                  {({ getRootProps, getInputProps }) => (
+                    <section>
+                      <div {...getRootProps()}>
+                        <input {...getInputProps()} />
+                        <Button>
+                          <Icon type="upload" />
+                        </Button>
+                      </div>
+                    </section>
+                  )}
+                </Dropzone>
+              </Col>
 
               <Col span={4}>
                 <Button

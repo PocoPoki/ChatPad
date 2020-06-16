@@ -11,7 +11,23 @@ function ChatCard(props) {
             src={props.sender.image} alt={props.sender.name}
           />
         }
-        content={<p>{props.message}</p>}
+        content={
+          props.message.substring(0, 8) === "uploads/" ?
+            props.message.substring(props.message.length - 3, props.message.length) === 'mp4' ?
+              <video
+                style={{ maxWidth: '200px' }}
+                src={`http://localhost:5000/${props.message}`} alt="video"
+                type="video/mp4" controls />
+              :
+              <img
+                style={{ maxWidth: '200px' }}
+                src={`http://localhost:5000/${props.message}`}
+                alt="img" />
+            :
+            <p>
+              {props.message}
+            </p>
+        }
         datetime={
           <Tooltip>
             <span>{props.time}</span>
