@@ -56,25 +56,27 @@ export class ChatPage extends Component {
     }
     formData.append("file", files[0])
 
-    Axios.post('api/chat/uploadfiles', formData, config).then(response => {
-      if (response.data.success) {
-        let chatMessage = response.data.url;
-        let userId = this.props.user.userData._id;
-        let userName = this.props.user.userData.name;
-        let userImage = this.props.user.userData.image;
-        let nowTime = moment().format('YYYY-MM-DD HH:mm:ss');
-        let type = "VideoOrImage";
+    Axios.post('api/chat/uploadfiles', formData, config)
+      .then(response => {
+        if (response.data.success) {
+          let chatMessage = response.data.url;
+          console.log(response)
+          let userId = this.props.user.userData._id;
+          let userName = this.props.user.userData.name;
+          let userImage = this.props.user.userData.image;
+          let nowTime = moment().format('YYYY-MM-DD HH:mm:ss');
+          let type = "VideoOrImage";
 
-        this.socket.emit("Input Chat Message", {
-          chatMessage,
-          userId,
-          userName,
-          userImage,
-          nowTime,
-          type,
-        });
-      }
-    });
+          this.socket.emit("Input Chat Message", {
+            chatMessage,
+            userId,
+            userName,
+            userImage,
+            nowTime,
+            type,
+          });
+        }
+      });
   };
   submitChatMessage = e => {
     e.preventDefault();

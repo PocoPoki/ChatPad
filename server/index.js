@@ -33,6 +33,7 @@ app.use(cookieParser());
 
 app.use("/api/users", require("./routes/users"));
 app.use("/api/chat", require("./routes/chat"));
+const { url } = require('inspector');
 
 const multer = require("multer");
 const fs = require("fs");
@@ -43,17 +44,10 @@ var storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}_${file.originalname}`)
-  },
-  // fileFilter: (req, file, cb) => {
-  //   const ext = path.extname(file.originalname)
-  //   if (ext !== '.jpg' && ext !== '.png' && ext !== '.mp4') {
-  //     return cb(res.status(400).end('only jpg, png, mp4 is allowed'), false);
-  //   }
-  //   cb(null, true)
-  // }
+  }
 })
 
-var upload = multer({ storage: storage }).single("file")
+var upload = multer({ storage: storage }).single("file");
 
 app.post("/api/chat/uploadfiles", auth, (req, res) => {
   upload(req, res, err => {
@@ -61,6 +55,8 @@ app.post("/api/chat/uploadfiles", auth, (req, res) => {
       return res.json({ success: false, err })
     }
     return res.json({ success: true, url: res.req.file.path });
+    console.log(url)
+
   })
 });
 
